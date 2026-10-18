@@ -6,6 +6,7 @@ from typing import get_origin, get_args
 from inspect import signature, _empty
 from functools import wraps
 import re
+import operator
 
 
 def autoassert(func):
@@ -98,25 +99,25 @@ class BinOp(Node):
 
 
 class Plus(BinOp):
-    pass
+    _op = operator.add
 
 
 class Minus(BinOp):
-    pass
+    _op = operator.sub
 
 
 class Mul(BinOp):
-    pass
+    _op = operator.mul
 
 
 class Div(BinOp):
-    pass
+    _op = operator.truediv
 
 
 class Parser:
     def __init__(self):
-        self.tokens = None
-        self.tok = None
+        self.tokens: Iterator[Token] | None = None
+        self.tok: Token | None = None
 
     def expr(self) -> Node:
         res: Node = self.term()
