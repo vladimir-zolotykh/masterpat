@@ -29,18 +29,18 @@ def masterpat():
 
 
 class Token:
-    def __init__(self, name: str, pat: str):
+    def __init__(self, name: str, val: str = ""):
         self.name = name
-        self.pat = pat
+        self.val = val
 
     def __repr__(self):
-        return self.name
+        return f"Token({self.name}, {self.val})"
 
 
 def iter_tokens(sexpr: str = "") -> Iterator[Token]:
     for match in re.finditer(masterpat(), sexpr):
         if match.lastgroup != "WS":
-            yield Token(match.lastgroup, match.group(1))
+            yield Token(match.lastgroup, match.group(0))
 
 
 if __name__ == "__main__":
