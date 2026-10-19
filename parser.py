@@ -7,6 +7,7 @@ from inspect import signature, _empty
 from functools import wraps
 import re
 import operator
+import pytest
 
 
 def autoassert(func):
@@ -210,8 +211,14 @@ Token(NUM, 5)
     )
 
 
-def test_parser_eval():
-    pass
+@pytest.mark.parametrize(
+    "sexpr, expected",
+    [
+        ("2 + (3 * 4) + 5", 19.0),
+    ],
+)
+def test_parser_eval(sexpr, expected):
+    assert Parser().parse(sexpr).eval() == expected
 
 
 if __name__ == "__main__":
