@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
 from typing import Iterator
-from typing import get_origin, get_args
+from typing import get_origin, get_args, Literal
 from inspect import signature, _empty
 from functools import wraps
 import re
