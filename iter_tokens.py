@@ -119,6 +119,11 @@ class Parser:
         self.tokens: Iterator[Token] | None = None
         self.tok: Token | None = None
 
+    def parse(self, sexpr: str) -> Node:
+        self.tokens = iter_tokens(sexpr)
+        self._advance()
+        return self.expr()
+
     def expr(self) -> Node:
         res: Node = self.term()
         while (tok := self.tok) in (Plus, Minus):
@@ -183,6 +188,6 @@ Token(NUM, 5)
 
 
 if __name__ == "__main__":
-    p = Parser("2 + (3 * 4) + 5")
-    n: Node = p.parse()
+    p = Parser()
+    n: Node = p.parse("2 + (3 * 4) + 5")
     print(n)
