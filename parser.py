@@ -94,6 +94,9 @@ class Num(Node):
     def __repr__(self):
         return f"Num({self.val})"
 
+    def eval(self) -> float:
+        return float(self.val)
+
 
 class BinOp(Node):
     def __init__(self, left: Node, right: Node):
@@ -108,6 +111,9 @@ class BinOp(Node):
 
     def __repr__(self):
         return f"{type(self).__name__}({repr(self.left)}, {self.right})"
+
+    def eval(self) -> float:
+        return self._func(self.left.eval(), self.right.eval())
 
 
 class Plus(BinOp):
@@ -204,7 +210,12 @@ Token(NUM, 5)
     )
 
 
+def test_parser_eval():
+    pass
+
+
 if __name__ == "__main__":
     p = Parser()
     n: Node = p.parse("2 + (3 * 4) + 5")
-    print(n)
+    # print(n)
+    print(n.eval())
