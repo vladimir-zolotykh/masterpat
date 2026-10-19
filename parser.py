@@ -50,7 +50,12 @@ class Token:
 
 
 class Node:
-    pass
+    op_to_node = {}
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if hasattr(cls, "_op"):
+            __class__.op_to_node[cls._op] = cls
 
 
 class Num(Node):
@@ -72,6 +77,7 @@ class Num(Node):
 
 
 class BinOp(Node):
+
     def __init__(self, left: Node, right: Node):
         self.left = left
         self.right = right
@@ -123,14 +129,14 @@ class Parser:
         res: Node = self.term()
         while (tok := self.tok) in (Plus, Minus):
             self._consume()
-            res = {"+": Plus, "-": Minus}[tok.val](res, self.term())
+            res = Node.op_to_node[tok.val](res, self.term())
         return res
 
     def term(self) -> Node:
         res: Node = self.factor()
         while (tok := self.tok) in (Mul, Div):
             self._consume()
-            res = {"*": Mul, "/": Div}[tok.val](res, self.factor())
+            res = Node.op_to_node[tok.val](res, self.term())
         return res
 
     def factor(self) -> Node:
