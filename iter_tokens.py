@@ -163,6 +163,26 @@ def iter_tokens(sexpr: str = "") -> Iterator[Token]:
             yield Token(match.lastgroup, match.group(0))
 
 
-if __name__ == "__main__":
+def test_iter_tokens(capsys):
     for tok in iter_tokens("2 + (3 * 4) + 5"):
         print(tok)
+    assert (
+        capsys.readouterr().out
+        == """\
+Token(NUM, 2)
+Token(PLUS, +)
+Token(LPAREN, ()
+Token(NUM, 3)
+Token(MUL, *)
+Token(NUM, 4)
+Token(RPAREN, ))
+Token(PLUS, +)
+Token(NUM, 5)
+"""
+    )
+
+
+if __name__ == "__main__":
+    p = Parser("2 + (3 * 4) + 5")
+    n: Node = p.parse()
+    print(n)
