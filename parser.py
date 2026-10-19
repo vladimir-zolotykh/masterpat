@@ -29,7 +29,9 @@ def autoassert(func):
                     if val not in lit:
                         raise ValueError(f"{name!r} must be one of {lit}")
                 elif not isinstance(bound.arguments[name], anno):
-                    raise TypeError(f"{name!r} must be of type {anno}")
+                    raise TypeError(
+                        f"{name!r} [{bound.arguments[name]!r}]: must be of type {anno}"
+                    )
         res = func(*args, **kwargs)
         return res
 
@@ -60,6 +62,16 @@ class Token:
         self.name = name
         self.val = val
 
+    def __eq__(self, other) -> bool:
+        if isinstance(other, Token):
+            return self.__dict__ == other.__dict__
+        elif isinstance(other, str):
+            return self.name == other or self.val == other
+        elif issubclass(other, BinOp):
+            return self.val == other._op
+        else:
+            return NotImplemented
+
     def __repr__(self):
         return f"Token({self.name}, {self.val})"
 
@@ -73,7 +85,7 @@ class Num(Node):
     def __init__(self, val: float):
         self.val = val
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, Num):
             return self.val == other.val
         else:
@@ -88,7 +100,7 @@ class BinOp(Node):
         self.left = left
         self.right = right
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, type(self)):
             return self.__dict__ == other.__dict__
         else:
@@ -99,19 +111,23 @@ class BinOp(Node):
 
 
 class Plus(BinOp):
-    _op = operator.add
+    _op = "+"
+    _func = operator.add
 
 
 class Minus(BinOp):
-    _op = operator.sub
+    _op = "-"
+    _func = operator.sub
 
 
 class Mul(BinOp):
-    _op = operator.mul
+    _op = "*"
+    _func = operator.mul
 
 
 class Div(BinOp):
-    _op = operator.truediv
+    _op = "/"
+    _func = operator.truediv
 
 
 class Parser:
@@ -128,23 +144,24 @@ class Parser:
         res: Node = self.term()
         while (tok := self.tok) in (Plus, Minus):
             self._consume()
-            res = {"+": Plus, "-": Minus}[tok](res, self.term())
+            res = {"+": Plus, "-": Minus}[tok.val](res, self.term())
         return res
 
     def term(self) -> Node:
         res: Node = self.factor()
         while (tok := self.tok) in (Mul, Div):
             self._consume()
-            res = {}[tok](res, self.factor())
+            res = {"*": Mul, "/": Div}[tok.val](res, self.factor())
         return res
 
     def factor(self) -> Node:
         if self.tok == "(":
             self._consume()
             res = self.expr()
+            # self._expect(")")
             self._expect(")")
         else:
-            res = Num(self.tok)
+            res = Num(float(self.tok.val))
             self._consume()
         return res
 
@@ -155,8 +172,8 @@ class Parser:
     def _consume(self) -> None:
         self.tok = next(self.tokens, None)
 
-    @autoassert
-    def _expect(self, expected: Token) -> None:
+    # @autoassert
+    def _expect(self, expected: Token | str) -> None:
         if self.tok != expected:
             raise SyntaxError(f"{expected!r}: was expected, got {self.tok}")
         self._consume()
