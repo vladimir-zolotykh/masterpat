@@ -8,35 +8,7 @@ from functools import wraps
 import re
 import operator
 import pytest
-
-
-def autoassert(func):
-    sig = signature(func)
-
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        bound = sig.bind(*args, **kwargs)
-        for name, parm in sig.parameters.items():
-            if (anno := parm.annotation) is not _empty:
-                if get_origin(anno) is Literal:
-                    lit = get_args(anno)
-                    typ = tuple(type(x) for x in lit)
-                    val = bound.arguments[name]
-                    if not isinstance(val, typ):
-                        raise TypeError(
-                            f"{name!r} must by of types {tuple(typ.__name__ for typ in typ)}"
-                            f", got type {type(val).__name__}"
-                        )
-                    if val not in lit:
-                        raise ValueError(f"{name!r} must be one of {lit}")
-                elif not isinstance(bound.arguments[name], anno):
-                    raise TypeError(
-                        f"{name!r} [{bound.arguments[name]!r}]: must be of type {anno}"
-                    )
-        res = func(*args, **kwargs)
-        return res
-
-    return wrapper
+from typeguard import typechecked
 
 
 TOKENS = {
@@ -82,7 +54,7 @@ class Node:
 
 
 class Num(Node):
-    @autoassert
+    @typechecked
     def __init__(self, val: float):
         self.val = val
 
@@ -179,7 +151,7 @@ class Parser:
     def _consume(self) -> None:
         self.tok = next(self.tokens, None)
 
-    # @autoassert
+    @typechecked
     def _expect(self, expected: Token | str) -> None:
         if self.tok != expected:
             raise SyntaxError(f"{expected!r}: was expected, got {self.tok}")
