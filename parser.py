@@ -212,12 +212,17 @@ Token(NUM, 5)
 
 
 @pytest.mark.parametrize(
-    "sexpr, expected",
+    "sexpr",
     [
-        ("2 + (3 * 4) + 5", 19.0),
+        "2 + (3 * 4) + 5",
+        "9 + (4 * 5) + 3",
+        "6 + (4 * 7) + 2",
+        "(9 - 4) * 3 + 2",
+        "(9 - 3) / 2 + (4 * 5)",
     ],
 )
-def test_parser_eval(sexpr, expected):
+def test_parser_eval(sexpr):
+    expected = eval(sexpr)
     assert Parser().parse(sexpr).eval() == expected
 
 
