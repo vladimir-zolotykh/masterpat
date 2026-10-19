@@ -50,6 +50,10 @@ class Token:
 
 
 class Node:
+    @classmethod
+    def get_node(cls, tok: Token):
+        return cls.op_to_node[tok.val]
+
     op_to_node = {}
 
     def __init_subclass__(cls, **kwargs):
@@ -129,14 +133,16 @@ class Parser:
         res: Node = self.term()
         while (tok := self.tok) in (Plus, Minus):
             self._consume()
-            res = Node.op_to_node[tok.val](res, self.term())
+            # res = Node.op_to_node[tok](res, self.term())
+            res = Node.get_node(tok)(res, self.term())
         return res
 
     def term(self) -> Node:
         res: Node = self.factor()
         while (tok := self.tok) in (Mul, Div):
             self._consume()
-            res = Node.op_to_node[tok.val](res, self.term())
+            # res = Node.op_to_node[tok.val](res, self.term())
+            res = Node.get_node(tok)(res, self.term())
         return res
 
     def factor(self) -> Node:
