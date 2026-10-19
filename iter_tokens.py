@@ -150,6 +150,7 @@ class Parser:
     def _consume(self) -> None:
         self.tok = next(self.tokens, None)
 
+    @autoassert
     def _expect(self, expected: Token) -> None:
         if self.tok != expected:
             raise SyntaxError(f"{expected!r}: was expected, got {self.tok}")
