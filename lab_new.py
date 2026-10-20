@@ -40,7 +40,7 @@ def test_rparen():
 def test_num():
     tok = Token("NUM", pat=r"\d+", val=10.3)
     assert tok is not Token("NUM", pat=r"\d+", val=10.3)
-    # assert str(tok) == "Token('NUM', pat=r'\\d+', val=10.3)"
+    assert str(tok) == "Token(NUM, pat='\\d+', val=10.3)"
 
 
 if __name__ == "__main__":
