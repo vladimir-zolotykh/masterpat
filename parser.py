@@ -120,6 +120,8 @@ PLUS = Token("PLUS")
 MINUS = Token("MINUS")
 MUL = Token("MUL")
 DIV = Token("DIV")
+LPAREN = Token("LPAREN")
+RPAREN = Token("RPAREN")
 
 
 class Parser:
@@ -149,11 +151,10 @@ class Parser:
         return res
 
     def factor(self) -> Node:
-        if self.tok == "(":
+        if self.tok == LPAREN:
             self._consume()
             res = self.expr()
-            # self._expect(")")
-            self._expect(")")
+            self._expect(RPAREN)
         else:
             res = Num(float(self.tok.val))
             self._consume()
