@@ -22,6 +22,8 @@ class Token:
         print(f"__init__ {name = }, {args = }, {kwargs = }")
 
     def __repr__(self):
+        args = ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items() if k != "name")
+        return f"Token({self.name}, {args})"
         pass
 
 
@@ -51,3 +53,4 @@ if __name__ == "__main__":
     print(tok3.__dict__)
     tok3 = Token("NUM", pat=r"\d+", val=10.3)
     print(tok3.__dict__)
+    print(repr(tok3))
