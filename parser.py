@@ -61,8 +61,9 @@ class Node:
 
 class Num(Node):
     # @typechecked
-    def __init__(self, val: float):
-        self.val = val
+    def __init__(self, tok: Token):
+        assert isinstance(tok, Token)
+        self.val = float(tok.val)
 
     def __eq__(self, other) -> bool:
         if isinstance(other, Num):
@@ -156,7 +157,8 @@ class Parser:
             res = self.expr()
             self._expect(RPAREN)
         else:
-            res = Num(float(self.tok.val))
+            # res = Num(float(self.tok.val))
+            res = Num(self.tok)
             self._consume()
         return res
 
@@ -168,7 +170,7 @@ class Parser:
         self.tok = next(self.tokens, None)
 
     # @typechecked
-    def _expect(self, expected: Token | str) -> None:
+    def _expect(self, expected: Token) -> None:
         if self.tok != expected:
             raise SyntaxError(f"{expected!r}: was expected, got {self.tok}")
         self._consume()
