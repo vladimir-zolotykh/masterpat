@@ -34,7 +34,7 @@ class Token:
 
     def __eq__(self, other) -> bool:
         if isinstance(other, Token):
-            return self.__dict__ == other.__dict__
+            return self.name == other.name
         elif isinstance(other, str):
             return self.name == other or self.val == other
         elif issubclass(other, BinOp):
@@ -60,7 +60,7 @@ class Node:
 
 
 class Num(Node):
-    @typechecked
+    # @typechecked
     def __init__(self, val: float):
         self.val = val
 
@@ -116,6 +116,12 @@ class Div(BinOp):
     _func = operator.truediv
 
 
+PLUS = Token("PLUS")
+MINUS = Token("MINUS")
+MUL = Token("MUL")
+DIV = Token("DIV")
+
+
 class Parser:
     def __init__(self):
         self.tokens: Iterator[Token] | None = None
@@ -128,7 +134,7 @@ class Parser:
 
     def expr(self) -> Node:
         res: Node = self.term()
-        while (tok := self.tok) in (Plus, Minus):
+        while (tok := self.tok) and tok in (PLUS, MINUS):
             self._consume()
             # res = Node.op_to_node[tok](res, self.term())
             res = Node.get_node(tok)(res, self.term())
@@ -136,7 +142,7 @@ class Parser:
 
     def term(self) -> Node:
         res: Node = self.factor()
-        while (tok := self.tok) in (Mul, Div):
+        while (tok := self.tok) and tok in (MUL, DIV):
             self._consume()
             # res = Node.op_to_node[tok.val](res, self.term())
             res = Node.get_node(tok)(res, self.term())
@@ -160,7 +166,7 @@ class Parser:
     def _consume(self) -> None:
         self.tok = next(self.tokens, None)
 
-    @typechecked
+    # @typechecked
     def _expect(self, expected: Token | str) -> None:
         if self.tok != expected:
             raise SyntaxError(f"{expected!r}: was expected, got {self.tok}")
