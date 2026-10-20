@@ -33,11 +33,15 @@ class Token:
         self.val = val
 
     def __eq__(self, other) -> bool:
-        if isinstance(other, Token):
+        if other is None:
+            return NotImplemented
+        elif isinstance(other, Token):
             return self.name == other.name
         elif isinstance(other, str):
             return self.name == other or self.val == other
-        elif issubclass(other, BinOp):
+        # elif issubclass(other, BinOp):
+        #     return self.val == other._op
+        elif hasattr(other, "_op"):
             return self.val == other._op
         else:
             return NotImplemented
@@ -137,7 +141,8 @@ class Parser:
 
     def expr(self) -> Node:
         res: Node = self.term()
-        while (tok := self.tok) and tok in (PLUS, MINUS):
+        # while (tok := self.tok) and tok in (PLUS, MINUS):
+        while (tok := self.tok) in (PLUS, MINUS):
             self._consume()
             # res = Node.op_to_node[tok](res, self.term())
             res = Node.get_node(tok)(res, self.term())
@@ -145,10 +150,10 @@ class Parser:
 
     def term(self) -> Node:
         res: Node = self.factor()
-        while (tok := self.tok) and tok in (MUL, DIV):
+        while (tok := self.tok) in (MUL, DIV):
             self._consume()
             # res = Node.op_to_node[tok.val](res, self.term())
-            res = Node.get_node(tok)(res, self.term())
+            res = Node.get_node(tok)(res, self.factor())
         return res
 
     def factor(self) -> Node:
