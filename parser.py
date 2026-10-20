@@ -139,22 +139,18 @@ class Parser:
         self._advance()
         return self.expr()
 
-    def expr(self) -> Node:
-        res: Node = self.term()
-        # while (tok := self.tok) and tok in (PLUS, MINUS):
-        while (tok := self.tok) in (PLUS, MINUS):
+    def while_in_tokens(self, func, tokens) -> Node:
+        res: Node = func()
+        while (tok := self.tok) in tokens:
             self._consume()
-            # res = Node.op_to_node[tok](res, self.term())
-            res = Node.get_node(tok)(res, self.term())
+            res = Node.get_node(tok)(res, func())
         return res
 
+    def expr(self) -> Node:
+        return self.while_in_tokens(self.term, (PLUS, MINUS))
+
     def term(self) -> Node:
-        res: Node = self.factor()
-        while (tok := self.tok) in (MUL, DIV):
-            self._consume()
-            # res = Node.op_to_node[tok.val](res, self.term())
-            res = Node.get_node(tok)(res, self.factor())
-        return res
+        return self.while_in_tokens(self.factor, (MUL, DIV))
 
     def factor(self) -> Node:
         if self.tok == LPAREN:
