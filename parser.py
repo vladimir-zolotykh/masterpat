@@ -25,6 +25,8 @@ class Token:
                     masterpat[name] = kwargs["pat"]
             if name == "NUM":  # do not cache NUM token
                 return tok
+            if not hasattr(tok, "val"):
+                setattr(tok, "val", "")
             cache[name] = tok
         return cache[name]
 
@@ -147,7 +149,6 @@ class Parser:
             res = self.expr()
             self._expect(RPAREN)
         else:
-            # res = Num(float(self.tok.val))
             res = Num(self.tok)
             self._consume()
         return res
@@ -169,7 +170,7 @@ class Parser:
 def iter_tokens(sexpr: str = "") -> Iterator[Token]:
     for match in re.finditer(Token.make_masterpat(), sexpr):
         if match.lastgroup != "WS":
-            yield Token(match.lastgroup, match.group(0))
+            yield Token(match.lastgroup, val=match.group(0))
 
 
 def test_iter_tokens(capsys):
@@ -178,15 +179,15 @@ def test_iter_tokens(capsys):
     assert (
         capsys.readouterr().out
         == """\
-Token(NUM, 2)
-Token(PLUS, +)
-Token(LPAREN, ()
-Token(NUM, 3)
-Token(MUL, *)
-Token(NUM, 4)
-Token(RPAREN, ))
-Token(PLUS, +)
-Token(NUM, 5)
+Token(NUM, val=2)
+Token(PLUS, pat=\\+, val=)
+Token(LPAREN, pat=\\(, val=)
+Token(NUM, val=3)
+Token(MUL, pat=\\*, val=)
+Token(NUM, val=4)
+Token(RPAREN, pat=\\), val=)
+Token(PLUS, pat=\\+, val=)
+Token(NUM, val=5)
 """
     )
 
