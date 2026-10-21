@@ -5,49 +5,46 @@ from typing import Iterator
 import re
 import operator
 import pytest
-from typeguard import typechecked
 
-
-TOKENS = {
-    name: f"(?P<{name}>{pat})"
-    for name, pat in {
-        "PLUS": r"\+",
-        "MINUS": r"-",
-        "MUL": r"\*",
-        "DIV": r"/",
-        "LPAREN": r"\(",
-        "RPAREN": r"\)",
-        "NUM": r"\d+",
-        "WS": r"\s+",
-    }.items()
-}
-
-
-def masterpat():
-    return "|".join(TOKENS.values())
+# from typeguard import typechecked
 
 
 class Token:
-    def __init__(self, name: str, val: str = ""):
-        self.name = name
-        self.val = val
+    _cache = {}
+    _masterpat = {}
 
-    def __eq__(self, other) -> bool:
-        if other is None:
-            return NotImplemented
-        elif isinstance(other, Token):
-            return self.name == other.name
-        elif isinstance(other, str):
-            return self.name == other or self.val == other
-        # elif issubclass(other, BinOp):
-        #     return self.val == other._op
-        elif hasattr(other, "_op"):
-            return self.val == other._op
-        else:
-            return NotImplemented
+    def __new__(cls, name, *args, **kwargs):
+        cache = __class__._cache
+        masterpat = __class__._masterpat
+        if name not in cache:
+            tok = super().__new__(cls)
+            tok.name = name
+            tok.__dict__.update(kwargs)
+            if "pat" in kwargs:
+                if name not in masterpat:
+                    masterpat[name] = kwargs["pat"]
+            if name == "NUM":  # do not cache NUM token
+                return tok
+            cache[name] = tok
+        return cache[name]
+
+    @classmethod
+    def make_masterpat(cls) -> str:
+        return "|".join(f"(?P<{name}>{pat})" for name, pat in cls._masterpat.items())
 
     def __repr__(self):
-        return f"Token({self.name}, {self.val})"
+        args = ", ".join(f"{k}={v}" for k, v in self.__dict__.items() if k != "name")
+        return f"Token({self.name}, {args})"
+
+
+PLUS = Token("PLUS", pat=r"\+")
+MINUS = Token("MINUS", pat=r"-")
+MUL = Token("MUL", pat=r"\*")
+DIV = Token("DIV", pat=r"/")
+LPAREN = Token("LPAREN", pat=r"\(")
+RPAREN = Token("RPAREN", pat=r"\)")
+NUM = Token("NUM", pat=r"\d+")
+WS = Token("WS", pat=r"\s+")
 
 
 class Node:
@@ -121,14 +118,6 @@ class Div(BinOp):
     _func = operator.truediv
 
 
-PLUS = Token("PLUS")
-MINUS = Token("MINUS")
-MUL = Token("MUL")
-DIV = Token("DIV")
-LPAREN = Token("LPAREN")
-RPAREN = Token("RPAREN")
-
-
 class Parser:
     def __init__(self):
         self.tokens: Iterator[Token] | None = None
@@ -178,7 +167,7 @@ class Parser:
 
 
 def iter_tokens(sexpr: str = "") -> Iterator[Token]:
-    for match in re.finditer(masterpat(), sexpr):
+    for match in re.finditer(Token.make_masterpat(), sexpr):
         if match.lastgroup != "WS":
             yield Token(match.lastgroup, match.group(0))
 
