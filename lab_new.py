@@ -40,6 +40,11 @@ def test_num():
     tok = Token("NUM", pat=r"\d+", val=10.3)
     assert tok is not Token("NUM", pat=r"\d+", val=10.3)
     assert str(tok) == "Token(NUM, pat=\\d+, val=10.3)"
+    num2 = Token("NUM", pat=r"\d+", val=2.2)
+    assert str(num2) == "Token(NUM, pat=\\d+, val=2.2)"
+    num3 = Token("NUM", pat=r"\d+", val=3.3)
+    assert str(num3) == "Token(NUM, pat=\\d+, val=3.3)"
+    assert num3 is not num2
 
 
 if __name__ == "__main__":
