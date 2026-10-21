@@ -39,10 +39,10 @@ class Token:
         return f"Token({self.name}, {args})"
 
 
-PLUS = Token("PLUS", pat=r"\+")
-MINUS = Token("MINUS", pat=r"-")
-MUL = Token("MUL", pat=r"\*")
-DIV = Token("DIV", pat=r"/")
+PLUS = Token("PLUS", pat=r"\+", val="+")
+MINUS = Token("MINUS", pat=r"-", val="-")
+MUL = Token("MUL", pat=r"\*", val="*")
+DIV = Token("DIV", pat=r"/", val="/")
 LPAREN = Token("LPAREN", pat=r"\(")
 RPAREN = Token("RPAREN", pat=r"\)")
 NUM = Token("NUM", pat=r"\d+")
@@ -180,13 +180,13 @@ def test_iter_tokens(capsys):
         capsys.readouterr().out
         == """\
 Token(NUM, val=2)
-Token(PLUS, pat=\\+, val=)
+Token(PLUS, pat=\\+, val=+)
 Token(LPAREN, pat=\\(, val=)
 Token(NUM, val=3)
-Token(MUL, pat=\\*, val=)
+Token(MUL, pat=\\*, val=*)
 Token(NUM, val=4)
 Token(RPAREN, pat=\\), val=)
-Token(PLUS, pat=\\+, val=)
+Token(PLUS, pat=\\+, val=+)
 Token(NUM, val=5)
 """
     )
