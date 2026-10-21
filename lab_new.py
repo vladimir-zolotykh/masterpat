@@ -26,13 +26,9 @@ class Token:
     def make_masterpat(cls) -> str:
         return "|".join(f"(?P<{name}>{pat})" for name, pat in cls._masterpat.items())
 
-    def __init__(self, name: str, *args, **kwargs):
-        pass
-
     def __repr__(self):
         args = ", ".join(f"{k}={v}" for k, v in self.__dict__.items() if k != "name")
         return f"Token({self.name}, {args})"
-        pass
 
 
 def test_masterpat():
