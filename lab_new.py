@@ -5,17 +5,26 @@
 
 class Token:
     _cache = {}
+    _masterpat = {}
 
     def __new__(cls, name, *args, **kwargs):
         cache = __class__._cache
+        masterpat = __class__._masterpat
         if name not in cache:
             tok = super().__new__(cls)
             tok.name = name
             tok.__dict__.update(kwargs)
+            if "pat" in kwargs:
+                if name not in masterpat:
+                    masterpat[name] = kwargs["pat"]
             if name == "NUM":  # do not cache NUM token
                 return tok
             cache[name] = tok
         return cache[name]
+
+    @classmethod
+    def make_masterpat(cls) -> str:
+        return "|".join(f"(?P<{name}>{pat})" for name, pat in cls._masterpat.items())
 
     def __init__(self, name: str, *args, **kwargs):
         pass
@@ -24,6 +33,12 @@ class Token:
         args = ", ".join(f"{k}={v}" for k, v in self.__dict__.items() if k != "name")
         return f"Token({self.name}, {args})"
         pass
+
+
+def test_masterpat():
+    Token("LPAREN", pat=r"\(")
+    Token("RPAREN", pat=r"\)")
+    assert Token.make_masterpat() == "(?P<LPAREN>\\()|(?P<RPAREN>\\))"
 
 
 def test_lparen():
