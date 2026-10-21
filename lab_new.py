@@ -7,7 +7,6 @@ class Token:
     _cache = {}
 
     def __new__(cls, name, *args, **kwargs):
-        print(f"__new__ {name = }, {args = }, {kwargs = }")
         cache = __class__._cache
         if name not in cache:
             tok = super().__new__(cls)
@@ -19,10 +18,10 @@ class Token:
         return cache[name]
 
     def __init__(self, name: str, *args, **kwargs):
-        print(f"__init__ {name = }, {args = }, {kwargs = }")
+        pass
 
     def __repr__(self):
-        args = ", ".join(f"{k}={v!r}" for k, v in self.__dict__.items() if k != "name")
+        args = ", ".join(f"{k}={v}" for k, v in self.__dict__.items() if k != "name")
         return f"Token({self.name}, {args})"
         pass
 
@@ -40,7 +39,7 @@ def test_rparen():
 def test_num():
     tok = Token("NUM", pat=r"\d+", val=10.3)
     assert tok is not Token("NUM", pat=r"\d+", val=10.3)
-    assert str(tok) == "Token(NUM, pat='\\d+', val=10.3)"
+    assert str(tok) == "Token(NUM, pat=\\d+, val=10.3)"
 
 
 if __name__ == "__main__":
@@ -53,4 +52,4 @@ if __name__ == "__main__":
     print(tok3.__dict__)
     tok3 = Token("NUM", pat=r"\d+", val=10.3)
     print(tok3.__dict__)
-    print(repr(tok3))
+    print(str(tok3))
