@@ -4,6 +4,7 @@
 from typing import Iterator
 import re
 import operator
+from collections import defaultdict
 import pytest
 
 # from typeguard import typechecked
@@ -11,7 +12,7 @@ import pytest
 
 class Token:
     _cache = {}
-    _masterpat = {}
+    _masterpat = defaultdict()
 
     def __new__(cls, name, *args, **kwargs):
         cache = __class__._cache
@@ -21,8 +22,7 @@ class Token:
             tok.name = name
             tok.__dict__.update(kwargs)
             if "pat" in kwargs:
-                if name not in masterpat:
-                    masterpat[name] = kwargs["pat"]
+                masterpat[name] = kwargs["pat"]
             if name == "NUM":  # do not cache NUM token
                 return tok
             if not hasattr(tok, "val"):
