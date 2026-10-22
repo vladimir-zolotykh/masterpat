@@ -14,16 +14,15 @@ class Token:
     _cache = {}
     _masterpat = defaultdict()
 
-    def __new__(cls, name, *args, **kwargs):
+    def __new__(cls, name, pat: str | None = None, val: str | float | None = ""):
         cache = __class__._cache
         masterpat = __class__._masterpat
         if name not in cache:
             tok = super().__new__(cls)
             tok.name = name
-            tok.val = ""
-            tok.__dict__.update(kwargs)
-            if "pat" in kwargs:
-                masterpat[name] = kwargs["pat"]
+            tok.val = val
+            if pat:
+                masterpat[name] = tok.pat = pat
             if name == "NUM":  # do not cache NUM token
                 return tok
             cache[name] = tok
