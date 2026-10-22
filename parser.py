@@ -20,13 +20,12 @@ class Token:
         if name not in cache:
             tok = super().__new__(cls)
             tok.name = name
+            tok.val = ""
             tok.__dict__.update(kwargs)
             if "pat" in kwargs:
                 masterpat[name] = kwargs["pat"]
             if name == "NUM":  # do not cache NUM token
                 return tok
-            if not hasattr(tok, "val"):
-                setattr(tok, "val", "")
             cache[name] = tok
         return cache[name]
 
@@ -35,7 +34,13 @@ class Token:
         return "|".join(f"(?P<{name}>{pat})" for name, pat in cls._masterpat.items())
 
     def __repr__(self):
-        args = ", ".join(f"{k}={v}" for k, v in self.__dict__.items() if k != "name")
+        # Guarantee fixed order of var names in repr
+        fields = ["name", "pat", "val"]
+        args = ", ".join(
+            f"{f}={getattr(self, f)}"
+            for f in fields
+            if f != "name" and hasattr(self, f)
+        )
         return f"Token({self.name}, {args})"
 
 
